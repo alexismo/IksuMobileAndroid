@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="Theme.IKSUMobile" parent="android:Theme.Black">
+		<item name="android:fadeScrollbars">true</item>
+	</style>
+	
+	<style name="DateView" parent="@android:style/Widget.TextView">
+		<item name="android:layout_width">fill_parent</item>
+		<item name="android:layout_height">35sp</item>
+		<item name="android:textSize">30sp</item>
+		<item name="android:textColor">#E95D10</item>
+		<item name="android:gravity">center</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:background">@drawable/dateheader</item>
+	</style>
+</resources>
