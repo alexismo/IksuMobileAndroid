@@ -3,30 +3,33 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
+	
+	<TextView
+		android:id="@+id/activity_time"
+		android:textSize="17dip"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:gravity="center_vertical"
+	/>
+	
 	<TextView
 		android:id="@+id/activity_name"
 		android:textSize="18dip"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-	/>
-	<TextView
-		android:id="@+id/activity_time"
-		android:textSize="16dip"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_toRightOf="@id/activity_name"
-		android:layout_alignParentRight="true"
+		android:layout_alignParentLeft="true"
 	/>
 	<TextView
 		android:id="@+id/activity_room"
-		android:textSize="12dip"
+		android:textSize="14dip"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_below="@+id/activity_name"
 	/>
 	<TextView
 		android:id="@+id/activity_instructor"
-		android:textSize="12dip"
+		android:textSize="14dip"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_below="@id/activity_room"

@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-	
-	<TextView android:id="@+id/date"
-	style="@style/DateView">
-	</TextView>
-
-	<ListView android:id="@+id/schedule" 
-	android:smoothScrollbar="false" 
-	android:layout_weight="1" 
-	android:layout_width="fill_parent" 
-	android:layout_height="wrap_content"
-	android:layout_below="@id/date"></ListView>
-
-</RelativeLayout>
+    <TextView 
+    	android:id="@+id/title_header" 
+    	android:height="35dip" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="fill_parent" 
+    	android:gravity="center" 
+    	android:textSize="30dip" 
+    	android:textColor="#FFFFFF"
+    	android:background="@drawable/header_background">
+    </TextView>
+    
+    <ListView
+    	android:id="@+id/activities_view" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="fill_parent"
+    	android:fadeScrollbars="true"></ListView>
+</LinearLayout>

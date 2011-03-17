@@ -1,19 +1,20 @@
 package com.alexismorin.iksu;
 
 import java.io.File;
-import java.io.FileInputStream;
+//import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+//import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
 import org.htmlcleaner.XPatherException;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import com.alexismorin.iksu.IKSUHelper.ApiException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -40,7 +41,7 @@ public class scheduleActivity extends Activity {
 	public ArrayList<String> activities = new ArrayList<String>();
 	public ArrayList<String> alSchedule;
 	public Object[] wholeSchedule;
-	public IKSUSchedule iksuSchedule = new IKSUSchedule();
+	public IKSUSchedule iksuSchedule;
 	
 	int dayIndex = 0;
 	
@@ -53,8 +54,14 @@ public class scheduleActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        m_class_list = (ListView) findViewById(R.id.schedule);
-        m_date = (TextView) findViewById(R.id.date);
+        iksuSchedule = (IKSUSchedule) getLastNonConfigurationInstance();
+        
+        if( iksuSchedule == null){//if the app is freshly started, need to initialize again.
+        	iksuSchedule = new IKSUSchedule(); 
+        }
+        
+        m_class_list = (ListView) findViewById(R.id.activities_view);
+        m_date = (TextView) findViewById(R.id.title_header);
         m_inflater = LayoutInflater.from(this);
         
         scheduleAdapter = new ScheduleAdapter(getApplicationContext());
@@ -80,40 +87,55 @@ public class scheduleActivity extends Activity {
         }
     }
     
-    private class IksuScheduleTask extends AsyncTask<String, Integer, Object[]>{
+    @Override
+    public Object onRetainNonConfigurationInstance() {//makes sure that the data is saved when an instance of the app is destroyed
+        final IKSUSchedule data = iksuSchedule;
+        return data;
+    }
+    
+    
+    
+    private class IksuScheduleTask extends AsyncTask<String, Integer, Document>{
     	
 		@Override
-		protected Object[] doInBackground(String... arg0) {
-			try {
-				return IksuSiteHelper.performXPathSelectorOnWebPage(
-						IksuSiteHelper.XPATH_IKSU_ALL,
-						IksuSiteHelper.IKSU_SCHEDULE_URL);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (XPathExpressionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SAXException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (XPatherException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		protected Document doInBackground(String... arg0) {
+				Log.i("IksuScheduleTask", "Fetching Web Page");
+			
+				try {
+					String thePage = IKSUHelper.getXml();
+					Log.i("IksuScheduleTask", "Done fetching. Parsing.");
+					
+					try {
+						return IKSUHelper.parseTheXml(thePage);
+					} catch (SAXException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ParserConfigurationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (ApiException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
 			return null;
 		}
 		
 		@Override
-		protected void onPostExecute(Object[] result) {
+		protected void onPostExecute(Document result) {
 			Log.i("IksuScheduleTask", "PostExecuting");
 			
 			try {
 				iksuSchedule.thePage = result;
-				iksuSchedule.dates = IksuSiteHelper.getDatesArray(result);
+				iksuSchedule.dates = IKSUHelper.getDatesArray(result);
+				
+				Log.i("IksuScheduleTask", "first date:"+iksuSchedule.dates.get(0));
+				
+				//Log.i("IksuScheduleTask", "Got the dates");
 				dialog.dismiss();
 				iksuSchedule.lastRefreshed = new Date();
 				loadDayToView(dayIndex);
@@ -137,13 +159,14 @@ public class scheduleActivity extends Activity {
     
     private void loadDayToView(int newDayIndex) throws XPatherException{
     	dayIndex = newDayIndex;
-    	iksuSchedule.activities = IksuSiteHelper.getScheduleFromPageForDay(iksuSchedule.thePage, dayIndex);
+    	iksuSchedule.activities = IKSUHelper.getScheduleFromPageForDay(iksuSchedule.thePage, dayIndex);
+    	Log.i("IksuScheduleTask", "Got the schedule");
     	m_date.setText(iksuSchedule.dates.get(dayIndex));
     	
     	scheduleAdapter.notifyDataSetChanged();
     }
     
-    private boolean scheduleIsCached(){
+   /* private boolean scheduleIsCached(){
     	return new File(getIKSUCacheDir(), "schedule").exists();
     }
     
@@ -170,7 +193,7 @@ public class scheduleActivity extends Activity {
 		}
     	
     	return cachedSched;
-    }
+    }*/
     
     private boolean saveScheduleToCache(){
     	Log.i("Cache", "Saving Object");
@@ -226,7 +249,7 @@ public class scheduleActivity extends Activity {
 	}
     
     static class ActivityHolder{
-    	TextView class_name, class_time;
+    	TextView class_name, class_time, class_room, class_instructor;
     }
     
     private class ScheduleAdapter extends BaseAdapter{
@@ -257,9 +280,11 @@ public class scheduleActivity extends Activity {
         	
         	if(convertView == null){
         		actHolder = new ActivityHolder();
-        		convertView = m_inflater.inflate(R.layout.schedule_item, parent, false);
-        		actHolder.class_name = (TextView) convertView.findViewById(R.id.class_name);
-        		actHolder.class_time = (TextView) convertView.findViewById(R.id.class_time);
+        		convertView = m_inflater.inflate(R.layout.main_list_item, parent, false);
+        		actHolder.class_name = (TextView) convertView.findViewById(R.id.activity_name);
+        		actHolder.class_time = (TextView) convertView.findViewById(R.id.activity_time);
+        		actHolder.class_room = (TextView) convertView.findViewById(R.id.activity_room);
+        		actHolder.class_instructor = (TextView) convertView.findViewById(R.id.activity_instructor);
         		
         		convertView.setTag(actHolder);
         	}else{
@@ -268,7 +293,9 @@ public class scheduleActivity extends Activity {
         	        	
         	actHolder.class_name.setText(iksuSchedule.getActivityAtPosition(pos).name);
         	actHolder.class_time.setText(iksuSchedule.getActivityAtPosition(pos).time);
-
+        	actHolder.class_room.setText(iksuSchedule.getActivityAtPosition(pos).room);
+        	actHolder.class_instructor.setText(iksuSchedule.getActivityAtPosition(pos).instructor);
+        	
         	return convertView;
         }
     }

@@ -3,9 +3,11 @@ package com.alexismorin.iksu;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.w3c.dom.Document;
+
 public class IKSUSchedule{
 	public Date lastRefreshed;
-	public Object[] thePage;
+	public Document thePage;
 	public ArrayList<IKSUActivity> activities = new ArrayList<IKSUActivity>();
 	public ArrayList<String> dates;
 	
