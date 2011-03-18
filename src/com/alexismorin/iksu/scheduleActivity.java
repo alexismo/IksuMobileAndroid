@@ -26,6 +26,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -106,7 +109,22 @@ public class scheduleActivity extends Activity {
         return data;
     }
     
-    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.schedule_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.reload_menu_btn:
+            loadData();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
     
     private class IksuScheduleTask extends AsyncTask<String, Integer, Document>{
     	
