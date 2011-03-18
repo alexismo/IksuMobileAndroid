@@ -58,16 +58,17 @@ public class scheduleActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        m_class_list = (ListView) findViewById(R.id.activities_view);
+        m_date = (TextView) findViewById(R.id.title_header);
+        m_inflater = LayoutInflater.from(this);
         
         iksuSchedule = (IKSUSchedule) getLastNonConfigurationInstance();
         
         if( iksuSchedule == null){//if the app is freshly started, need to initialize again.
         	iksuSchedule = new IKSUSchedule(); 
+        }else{
+        	m_date.setText(iksuSchedule.dates.get(iksuSchedule.currentDateIndex));
         }
-        
-        m_class_list = (ListView) findViewById(R.id.activities_view);
-        m_date = (TextView) findViewById(R.id.title_header);
-        m_inflater = LayoutInflater.from(this);
         
         scheduleAdapter = new ScheduleAdapter(getApplicationContext());
         m_class_list.setAdapter(scheduleAdapter);
@@ -189,6 +190,8 @@ public class scheduleActivity extends Activity {
 				if(iksuSchedule.getNumActivities() == 0){					
 					loadDayToView(++dayIndex);
 				}
+				
+				iksuSchedule.currentDateIndex = dayIndex;
 				
 				if(saveScheduleToCache())
 					Toast.makeText(getApplicationContext(), "Saved Object successfully", Toast.LENGTH_SHORT);

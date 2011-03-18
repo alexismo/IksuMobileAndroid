@@ -10,6 +10,7 @@ public class IKSUSchedule{
 	public Document thePage;
 	public ArrayList<IKSUActivity> activities = new ArrayList<IKSUActivity>();
 	public ArrayList<String> dates;
+	public int currentDateIndex;
 	
 	public IKSUSchedule(){
 	}
