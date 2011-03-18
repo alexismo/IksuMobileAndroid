@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,6 +17,12 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultRedirectHandler;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,6 +30,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import android.util.Log;
 
 public class IKSUHelper {
 	private static final String iksuWsUrl = "http://alexismorin.com/iksuMobile/iksuMobile.php";
@@ -42,15 +51,34 @@ public class IKSUHelper {
         }
     }
 	
-	protected static synchronized String getXml() throws ApiException {
-		HttpClient client = new DefaultHttpClient();
+	protected static synchronized String getXml() throws ApiException, SocketTimeoutException {
         HttpGet request = new HttpGet(iksuWsUrl);
+        /*HttpParams httpParameters = new BasicHttpParams();
+        
+        int timeoutConnection = 5000;
+        HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+        int timeoutSocket = 5000;
+        HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);*/
+        HttpClient client = new DefaultHttpClient();
+        
         try {
+        	Log.i("GetXML", "Executing HTTP Request");
 			HttpResponse response = client.execute(request);
 			StatusLine status = response.getStatusLine();
-			if(status.getStatusCode() != HTTP_STATUS_OK)
+			DefaultRedirectHandler redirectHandle = new DefaultRedirectHandler();
+			HttpContext localHttpContext = new BasicHttpContext(); 
+			
+			if(status.getStatusCode() != HTTP_STATUS_OK){
+				Log.i("GetXML", "HTTP STATUS error");
 				throw new Exception("Invalid response from alexismorin.com" + 
                         status.toString());
+			}
+			
+			if(redirectHandle.isRedirectRequested(response, localHttpContext)){
+				Log.i("GetXML", "Redirrects");
+				throw new Exception("Request redirrected from alexismorin.com");
+			}
+			
 			HttpEntity entity = response.getEntity();
 			InputStream ist = entity.getContent();
 			
@@ -59,7 +87,11 @@ public class IKSUHelper {
             while ((readcount = ist.read(buff)) != -1)
 				content.write(buff, 0, readcount);
             
-            return new String(content.toByteArray());
+            //check if the content is longer than 0
+            if(content.size() > 0)
+            	return new String(content.toByteArray());
+            else
+            	throw new Exception("No content retrieved from web call.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -67,15 +99,14 @@ public class IKSUHelper {
 	}
 	
 	public static Document parseTheXml(String thePage) throws SAXException, IOException, ParserConfigurationException{
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			InputSource is = new InputSource();
+			is.setCharacterStream(new StringReader(thePage));
+	        
+	        return db.parse(is);
 		//build dat DOM document!
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(thePage));
-		    		
-		//Document doc = db.parse(is);
-        
-        return db.parse(is);
+
 	}
 	
 	public static ArrayList<String> getDatesArray(Document allDoc){

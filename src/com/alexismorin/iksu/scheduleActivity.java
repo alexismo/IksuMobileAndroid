@@ -6,11 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 //import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Date;
 
 import javax.xml.parsers.ParserConfigurationException;
-import org.htmlcleaner.XPatherException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -19,7 +19,9 @@ import com.alexismorin.iksu.IKSUHelper.ApiException;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -77,14 +79,25 @@ public class scheduleActivity extends Activity {
 						Log.i("Cache", "No schedule found in cache");
 		        	}
 		        }else{*/
-					dialog = ProgressDialog.show(this, "", 
-		                    this.getString(R.string.fetching_schedule), true);
-		        	new IksuScheduleTask().execute();
+					loadData();
 				//}
 	        }
         }else{
-        	Toast.makeText(getApplicationContext(),"No Internet", Toast.LENGTH_SHORT);
+        	Toast.makeText(getApplicationContext(),"No Internet.", Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    /*@Override
+    public void onResume(){
+    	if(iksuSchedule.activities.size() == 0){
+    		loadData();
+    	}
+    }*/
+    
+    public void loadData(){
+    	dialog = ProgressDialog.show(this, "", 
+                this.getString(R.string.fetching_schedule), true);
+    	new IksuScheduleTask().execute();
     }
     
     @Override
@@ -97,39 +110,54 @@ public class scheduleActivity extends Activity {
     
     private class IksuScheduleTask extends AsyncTask<String, Integer, Document>{
     	
+    	Exception bgException;
+    	
 		@Override
 		protected Document doInBackground(String... arg0) {
-				Log.i("IksuScheduleTask", "Fetching Web Page");
+			//android.os.Debug.waitForDebugger();
+				//Log.i("IksuScheduleTask", "Fetching Web Page");
 			
 				try {
 					String thePage = IKSUHelper.getXml();
-					Log.i("IksuScheduleTask", "Done fetching. Parsing.");
-					
+					Log.i("IksuScheduleTask", "Length of Page OK.");
 					try {
+						//@REMINDER your return is here. So many potential errors. WTF
 						return IKSUHelper.parseTheXml(thePage);
 					} catch (SAXException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						handleError(e);
+						return null;
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						handleError(e);
+						return null;
 					} catch (ParserConfigurationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						handleError(e);
+						return null;
+					} catch (Exception e){
+						handleError(e);
+						return null;
 					}
 				} catch (ApiException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					handleError(e);
+					return null;
+				} catch (SocketTimeoutException e) {
+					handleError(e);
+					return null;
 				}
-			
-			return null;
+		}
+		
+		private void handleError(Exception e){
+			Log.i("IksuScheduleTask", "Handling the exception, like a boss.");
+			bgException = e;
+			bgException.printStackTrace();
+			if(dialog.isShowing())
+				dialog.dismiss();
+			cancel(true);
 		}
 		
 		@Override
 		protected void onPostExecute(Document result) {
 			Log.i("IksuScheduleTask", "PostExecuting");
-			
-			try {
+			if(!isCancelled()){
 				iksuSchedule.thePage = result;
 				iksuSchedule.dates = IKSUHelper.getDatesArray(result);
 				
@@ -148,16 +176,31 @@ public class scheduleActivity extends Activity {
 					Toast.makeText(getApplicationContext(), "Saved Object successfully", Toast.LENGTH_SHORT);
 				else
 					Toast.makeText(getApplicationContext(), "Failed to save object", Toast.LENGTH_SHORT);
+			}else{
+				Log.i("IksuScheduleTask","Task Cancelled due to caught exception.(PostExecute)");
+				cancel(true);
+				Toast.makeText(getApplicationContext(), "Ran into an error. Are you logged into CAS?", Toast.LENGTH_LONG).show();
 				
-			} catch (XPatherException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("https://netlogon.umu.se/index.cgi?referer=www.google.com"));
+				startActivity(viewIntent);
 			}
+		}
+		
+		@Override
+		protected void onCancelled(){
+			//kill the dialog window so it doesn't leak ALL OVER THE PLACE!
+			if(dialog.isShowing())
+				dialog.dismiss();
+			
+			Log.i("IksuScheduleTask","Task Cancelled due to caught exception.");
+			
+			Toast.makeText(getApplicationContext(), 
+					"Are you logged into CAS? (onCancelled)", Toast.LENGTH_LONG);
 		}
     	
     }
     
-    private void loadDayToView(int newDayIndex) throws XPatherException{
+    private void loadDayToView(int newDayIndex){
     	dayIndex = newDayIndex;
     	iksuSchedule.activities = IKSUHelper.getScheduleFromPageForDay(iksuSchedule.thePage, dayIndex);
     	Log.i("IksuScheduleTask", "Got the schedule");
