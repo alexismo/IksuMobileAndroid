@@ -30,20 +30,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class scheduleActivity extends Activity {
+public class ScheduleActivity extends Activity implements OnClickListener{
 	//views from the XML file
 	public LayoutInflater m_inflater;
+	public Button m_p, m_n;
 	public ListView m_class_list;
 	public TextView m_date;
 	
-	public ArrayList<String> scheduleDates = new ArrayList<String>();
-	public ArrayList<String> activities = new ArrayList<String>();
 	public ArrayList<String> alSchedule;
 	public Object[] wholeSchedule;
 	public IKSUSchedule iksuSchedule;
@@ -58,16 +59,32 @@ public class scheduleActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        m_inflater = LayoutInflater.from(this);
         m_class_list = (ListView) findViewById(R.id.activities_view);
         m_date = (TextView) findViewById(R.id.title_header);
-        m_inflater = LayoutInflater.from(this);
+        m_p = (Button) findViewById(R.id.btnPrev);
+        m_n = (Button) findViewById(R.id.btnNext);
+        
+        m_p.setOnClickListener(this);
+        m_n.setOnClickListener(this);
         
         iksuSchedule = (IKSUSchedule) getLastNonConfigurationInstance();
         
         if( iksuSchedule == null){//if the app is freshly started, need to initialize again.
+        	m_p.setVisibility(View.INVISIBLE);
+        	m_n.setVisibility(View.INVISIBLE);
         	iksuSchedule = new IKSUSchedule(); 
-        }else{
+        }else{//this happens when the app is rotated
         	m_date.setText(iksuSchedule.dates.get(iksuSchedule.currentDateIndex));
+        	if(iksuSchedule.currentDateIndex == 0){
+        		m_p.setVisibility(View.INVISIBLE);
+            	m_n.setVisibility(View.VISIBLE);
+        	}
+        	if(iksuSchedule.currentDateIndex == iksuSchedule.dates.size()-1){
+        		m_p.setVisibility(View.VISIBLE);
+            	m_n.setVisibility(View.INVISIBLE);
+        	}
         }
         
         scheduleAdapter = new ScheduleAdapter(getApplicationContext());
@@ -87,9 +104,21 @@ public class scheduleActivity extends Activity {
 				//}
 	        }
         }else{
-        	Toast.makeText(getApplicationContext(),"No Internet.", Toast.LENGTH_SHORT).show();
+        	Toast.makeText(getApplicationContext(),R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
     }
+    
+    public void onClick(View v) {
+        // do something when the button is clicked
+    	Log.i("onClick", "Button Pressed");
+    	
+    	if(v == m_n){
+    		loadDay(1);
+    	}
+    	if(v == m_p){
+    		loadDay(-1);
+    	}
+      }
     
     /*@Override
     public void onResume(){
@@ -123,6 +152,9 @@ public class scheduleActivity extends Activity {
         case R.id.reload_menu_btn:
             loadData();
             return true;
+        case R.id.today_menu_btn:
+        	loadDayToView(0);
+        	return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -138,7 +170,7 @@ public class scheduleActivity extends Activity {
 			
 				try {
 					String thePage = IKSUHelper.getXml();
-					Log.i("IksuScheduleTask", "Length of Page OK.");
+					//Log.i("IksuScheduleTask", thePage);
 					try {
 						//@REMINDER your return is here. So many potential errors. WTF
 						return IKSUHelper.parseTheXml(thePage);
@@ -165,7 +197,7 @@ public class scheduleActivity extends Activity {
 		}
 		
 		private void handleError(Exception e){
-			Log.i("IksuScheduleTask", "Handling the exception, like a boss.");
+			//Log.i("IksuScheduleTask", "Handling the exception, like a boss.");
 			bgException = e;
 			bgException.printStackTrace();
 			if(dialog.isShowing())
@@ -180,7 +212,7 @@ public class scheduleActivity extends Activity {
 				iksuSchedule.thePage = result;
 				iksuSchedule.dates = IKSUHelper.getDatesArray(result);
 				
-				Log.i("IksuScheduleTask", "first date:"+iksuSchedule.dates.get(0));
+				//Log.i("IksuScheduleTask", "first date:"+iksuSchedule.dates.get(0));
 				
 				//Log.i("IksuScheduleTask", "Got the dates");
 				dialog.dismiss();
@@ -191,16 +223,16 @@ public class scheduleActivity extends Activity {
 					loadDayToView(++dayIndex);
 				}
 				
-				iksuSchedule.currentDateIndex = dayIndex;
+				saveScheduleToCache();
 				
-				if(saveScheduleToCache())
-					Toast.makeText(getApplicationContext(), "Saved Object successfully", Toast.LENGTH_SHORT);
-				else
-					Toast.makeText(getApplicationContext(), "Failed to save object", Toast.LENGTH_SHORT);
+				//if()
+					//Toast.makeText(getApplicationContext(), "Saved Object successfully", Toast.LENGTH_SHORT);
+				//else
+					//Toast.makeText(getApplicationContext(), "Failed to save object", Toast.LENGTH_SHORT);
 			}else{
 				Log.i("IksuScheduleTask","Task Cancelled due to caught exception.(PostExecute)");
 				cancel(true);
-				Toast.makeText(getApplicationContext(), "Ran into an error. Are you logged into CAS?", Toast.LENGTH_LONG).show();
+				Toast.makeText(getApplicationContext(), R.string.casError, Toast.LENGTH_LONG).show();
 				
 				Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("https://netlogon.umu.se/index.cgi?referer=www.google.com"));
 				startActivity(viewIntent);
@@ -216,16 +248,44 @@ public class scheduleActivity extends Activity {
 			Log.i("IksuScheduleTask","Task Cancelled due to caught exception.");
 			
 			Toast.makeText(getApplicationContext(), 
-					"Are you logged into CAS? (onCancelled)", Toast.LENGTH_LONG);
+					R.string.casError, Toast.LENGTH_LONG);
 		}
     	
+    }
+    
+    private void loadDay(int direction){
+    	if(iksuSchedule.dates.size() > 0){
+    		if(direction == 1){
+    			if(iksuSchedule.currentDateIndex < iksuSchedule.dates.size()-1){
+    				loadDayToView(iksuSchedule.currentDateIndex + direction);
+    			}
+    		}
+    		if(direction == -1){
+    			if(iksuSchedule.currentDateIndex > 0){
+    				loadDayToView(iksuSchedule.currentDateIndex + direction);
+    			}
+    		}
+    	}
     }
     
     private void loadDayToView(int newDayIndex){
     	dayIndex = newDayIndex;
     	iksuSchedule.activities = IKSUHelper.getScheduleFromPageForDay(iksuSchedule.thePage, dayIndex);
-    	Log.i("IksuScheduleTask", "Got the schedule");
-    	m_date.setText(iksuSchedule.dates.get(dayIndex));
+    	m_date.setText(iksuSchedule.dates.get(dayIndex).trim());
+    	iksuSchedule.currentDateIndex = dayIndex;
+    	
+    	if(dayIndex == 0 && iksuSchedule.dates.size() > 0){
+			m_p.setVisibility(View.INVISIBLE);
+			m_n.setVisibility(View.VISIBLE);
+		}else if(dayIndex == iksuSchedule.dates.size() -1){
+    		m_p.setVisibility(View.VISIBLE);
+			m_n.setVisibility(View.INVISIBLE);
+    	}else{
+    		m_p.setVisibility(View.VISIBLE);
+    		m_n.setVisibility(View.VISIBLE);
+    	}
+    	
+    	//Log.i("IksuScheduleTask", "Day is" + iksuSchedule.dates.get(dayIndex));
     	
     	scheduleAdapter.notifyDataSetChanged();
     }
@@ -260,7 +320,7 @@ public class scheduleActivity extends Activity {
     }*/
     
     private boolean saveScheduleToCache(){
-    	Log.i("Cache", "Saving Object");
+    	//Log.i("Cache", "Saving Object");
     	
     	FileOutputStream fos = null;
     	ObjectOutputStream oos = null;
@@ -284,8 +344,8 @@ public class scheduleActivity extends Activity {
 			}
 		}
 		
-		if(keep)
-			Log.i("Cache", "Object successfully saved");
+		//if(keep)
+			//Log.i("Cache", "Object successfully saved");
 		
 		return keep;
     }

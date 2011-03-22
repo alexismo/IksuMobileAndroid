@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">IKSU Mobile</string>
+<string name="fetching_schedule">Laddas ner schema. Vänligen vänta.</string>
+<string name="fetching_schedule_title">Schema</string>
+<string name="reload">Uppdatera</string><string name="today">Idag</string>
+</resources>

@@ -18,9 +18,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.w3c.dom.CharacterData;
@@ -53,6 +50,7 @@ public class IKSUHelper {
 	
 	protected static synchronized String getXml() throws ApiException, SocketTimeoutException {
         HttpGet request = new HttpGet(iksuWsUrl);
+        request.setHeader("User-Agent","IksuMobileAndroid");
         /*HttpParams httpParameters = new BasicHttpParams();
         
         int timeoutConnection = 5000;
@@ -132,11 +130,14 @@ public class IKSUHelper {
 		Element element = (Element) nodes.item(dayIndex);
 		
 		NodeList activitiesNodes = element.getElementsByTagName("activity");
+		
+		Log.i("getSched", ""+activitiesNodes.getLength());
+		
 		for(int j = 0; j < activitiesNodes.getLength(); j++){
 			Element activity = (Element) activitiesNodes.item(j);
 			
 			//don't need type yet
-			//NodeList actType = activity.getElementsByTagName("type");
+			NodeList actType = activity.getElementsByTagName("type");
 			NodeList actTime = activity.getElementsByTagName("time");
 			NodeList actName = activity.getElementsByTagName("name");
 			NodeList actRoom = activity.getElementsByTagName("room");
@@ -144,6 +145,7 @@ public class IKSUHelper {
 			
 			//Element aLine = (Element) actTime.item(0);
 			
+			if(getCharacterDataFromElement((Element) actType.item(0)).trim().equals("Sport"))
 			activities.add(new IKSUActivity(
 					getCharacterDataFromElement(((Element) actName.item(0))).trim(), 
 					getCharacterDataFromElement(((Element) actTime.item(0))).trim(), 

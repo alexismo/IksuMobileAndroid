@@ -4,16 +4,41 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    <TextView 
-    	android:id="@+id/title_header" 
-    	android:height="35dip" 
-    	android:layout_height="wrap_content" 
-    	android:layout_width="fill_parent" 
-    	android:gravity="center" 
-    	android:textSize="30dip" 
-    	android:textColor="#FFFFFF"
-    	android:background="@drawable/header_background">
-    </TextView>
+    <RelativeLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="47dip" 
+		android:id="@+id/linearLayout1"
+		android:background="@drawable/header_background">
+		
+		<Button 
+			android:id="@+id/btnPrev"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:height="46dip"
+			android:gravity="center_vertical"
+			android:layout_alignParentLeft="true"
+			android:background="@drawable/button_prev"
+			android:paddingLeft="3dip"></Button>
+		<Button 
+			android:id="@+id/btnNext"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:height="46dip"
+			android:gravity="center_vertical"
+			android:layout_toRightOf="@+id/btnPrev"
+			android:background="@drawable/button_next"
+			android:paddingLeft="3dip"></Button>
+	    <TextView 
+	    	android:id="@+id/title_header" 
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:textSize="30dip"
+			android:height="46dip"
+			android:gravity="center"
+			android:layout_toRightOf="@+id/btnNext"
+			android:textColor="#FFEEEEEE">
+	    </TextView>
+	</RelativeLayout>
     
     <ListView
     	android:id="@+id/activities_view" 

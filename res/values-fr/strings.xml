@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">IKSU Mobile</string>
+<string name="fetching_schedule">Téléchargement de l\'horraire. Veuillez attendre.</string>
+<string name="fetching_schedule_title">Horraire</string>
+<string name="reload">Actualiser</string><string name="no_connection">Aucune connection disponible.</string>
+<string name="casError">Une erreur est survenue. Êtes-vous connectés à CAS?</string>
+<string name="today">Aujourd\'hui</string>
+</resources>
