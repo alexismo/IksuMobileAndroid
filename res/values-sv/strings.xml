@@ -3,5 +3,5 @@
     <string name="app_name">IKSU Mobile</string>
 <string name="fetching_schedule">Laddas ner schema. Vänligen vänta.</string>
 <string name="fetching_schedule_title">Schema</string>
-<string name="reload">Uppdatera</string><string name="today">Idag</string>
+<string name="reload">Uppdatera</string><string name="no_connection">Ingen internet anslutning tillgänglig.</string><string name="casError">En fel hände. Är du inloggad med CAS?</string><string name="today">Idag</string>
 </resources>
