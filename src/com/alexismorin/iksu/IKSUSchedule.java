@@ -8,6 +8,7 @@ import org.w3c.dom.Document;
 public class IKSUSchedule{
 	public Date lastRefreshed;
 	public Document thePage;
+	public String typeFilter;
 	public ArrayList<IKSUActivity> activities = new ArrayList<IKSUActivity>();
 	public ArrayList<String> dates;
 	public int currentDateIndex;

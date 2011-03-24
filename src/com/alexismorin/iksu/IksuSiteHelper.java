@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -57,7 +56,7 @@ public class IksuSiteHelper {
 	}
 	
 	public static Object[] performXPathSelectorOnWebPage(String sXpath, String webpage) 
-		throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, XPatherException{
+		throws ParserConfigurationException, SAXException, IOException, XPatherException{
 		
 		//clean the html in the InputStream
 		HtmlCleaner pageParser = new HtmlCleaner();

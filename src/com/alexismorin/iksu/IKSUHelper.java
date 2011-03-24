@@ -123,7 +123,7 @@ public class IKSUHelper {
 		return datesArray;
 	}
 	
-	public static ArrayList<IKSUActivity> getScheduleFromPageForDay(Document allDoc, int dayIndex){
+	public static ArrayList<IKSUActivity> getScheduleFromPageForDay(Document allDoc, int dayIndex, String filter){
 		ArrayList<IKSUActivity> activities = new ArrayList<IKSUActivity>();
 		NodeList nodes = allDoc.getElementsByTagName("day");
 		//only gets the day we need
@@ -131,21 +131,17 @@ public class IKSUHelper {
 		
 		NodeList activitiesNodes = element.getElementsByTagName("activity");
 		
-		Log.i("getSched", ""+activitiesNodes.getLength());
-		
 		for(int j = 0; j < activitiesNodes.getLength(); j++){
 			Element activity = (Element) activitiesNodes.item(j);
 			
-			//don't need type yet
 			NodeList actType = activity.getElementsByTagName("type");
 			NodeList actTime = activity.getElementsByTagName("time");
 			NodeList actName = activity.getElementsByTagName("name");
 			NodeList actRoom = activity.getElementsByTagName("room");
 			NodeList actInstructor = activity.getElementsByTagName("instructor");
 			
-			//Element aLine = (Element) actTime.item(0);
-			
-			if(getCharacterDataFromElement((Element) actType.item(0)).trim().equals("Sport"))
+			//TODO benchmark .startsWith() versus .equals() for performance
+			if(getCharacterDataFromElement((Element) actType.item(0)).trim().startsWith(filter, 0))
 			activities.add(new IKSUActivity(
 					getCharacterDataFromElement(((Element) actName.item(0))).trim(), 
 					getCharacterDataFromElement(((Element) actTime.item(0))).trim(), 
@@ -165,6 +161,5 @@ public class IKSUHelper {
 	    }
 	    return "?";
 	  }
-	
 	
 }

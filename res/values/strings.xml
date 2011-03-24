@@ -7,4 +7,7 @@
 <string name="no_connection">No internet connection available.</string>
 <string name="casError">Ran into an error. Are you logged into CAS?</string>
 <string name="today">Today</string>
+<string name="preferences">Preferences</string>
+<string name="iksuActTypeTitle">Membership Type</string>
+<string name="iksuActTypeSummary">Display IKSU Sport or IKSU Spa activities.</string>
 </resources>

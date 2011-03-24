@@ -6,4 +6,7 @@
 <string name="reload">Actualiser</string><string name="no_connection">Aucune connection disponible.</string>
 <string name="casError">Une erreur est survenue. Êtes-vous connectés à CAS?</string>
 <string name="today">Aujourd\'hui</string>
+<string name="preferences">Préférences</string>
+<string name="iksuActTypeTitle">Type d\'abonnement</string>
+<string name="iksuActTypeSummary">Afficher les activités IKSU Sport ou IKSU Spa.</string>
 </resources>

@@ -20,10 +20,12 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -74,7 +76,7 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         if( iksuSchedule == null){//if the app is freshly started, need to initialize again.
         	m_p.setVisibility(View.INVISIBLE);
         	m_n.setVisibility(View.INVISIBLE);
-        	iksuSchedule = new IKSUSchedule(); 
+        	iksuSchedule = new IKSUSchedule();
         }else{//this happens when the app is rotated
         	m_date.setText(iksuSchedule.dates.get(iksuSchedule.currentDateIndex));
         	if(iksuSchedule.currentDateIndex == 0){
@@ -109,9 +111,7 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     }
     
     public void onClick(View v) {
-        // do something when the button is clicked
-    	Log.i("onClick", "Button Pressed");
-    	
+        // do something when the button is clicked  	
     	if(v == m_n){
     		loadDay(1);
     	}
@@ -127,7 +127,14 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     	}
     }*/
     
+    private void loadPrefs(){
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    	iksuSchedule.typeFilter = prefs.getString("iksuActType", "");
+    	//Log.i("Prefs",iksuSchedule.typeFilter);
+    }
+    
     public void loadData(){
+    	loadPrefs();
     	dialog = ProgressDialog.show(this, "", 
                 this.getString(R.string.fetching_schedule), true);
     	new IksuScheduleTask().execute();
@@ -155,6 +162,9 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         case R.id.today_menu_btn:
         	loadDayToView(0);
         	return true;
+        case R.id.prefs_menu_btn:
+        	Intent settingsActivity = new Intent(getBaseContext(), Preferences.class);
+        	startActivity(settingsActivity);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -207,7 +217,7 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 		
 		@Override
 		protected void onPostExecute(Document result) {
-			Log.i("IksuScheduleTask", "PostExecuting");
+			//Log.i("IksuScheduleTask", "PostExecuting");
 			if(!isCancelled()){
 				iksuSchedule.thePage = result;
 				iksuSchedule.dates = IKSUHelper.getDatesArray(result);
@@ -270,7 +280,7 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     
     private void loadDayToView(int newDayIndex){
     	dayIndex = newDayIndex;
-    	iksuSchedule.activities = IKSUHelper.getScheduleFromPageForDay(iksuSchedule.thePage, dayIndex);
+    	iksuSchedule.activities = IKSUHelper.getScheduleFromPageForDay(iksuSchedule.thePage, dayIndex, iksuSchedule.typeFilter);
     	m_date.setText(iksuSchedule.dates.get(dayIndex).trim());
     	iksuSchedule.currentDateIndex = dayIndex;
     	
