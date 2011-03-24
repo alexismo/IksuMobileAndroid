@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string-array name="iksuActTypeArray">
+    <item>Alla</item>
+    <item>IKSU Sport</item>
+    <item>IKSU Spa</item>
+</string-array>
+<string-array name="iksuActTypeArrayValues">
+    <item></item>
+    <item>Sport</item>
+    <item>Spa</item>
+</string-array>
+</resources>
