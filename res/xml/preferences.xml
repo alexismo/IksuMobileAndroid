@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  <ListPreference
+  	android:title="@string/iksuActTypeTitle"
+  	android:summary="@string/iksuActTypeSummary"
+  	android:key="iksuActType"
+  	android:defaultValue="Sport"
+  	android:entries="@array/iksuActTypeArray"
+  	android:entryValues="@array/iksuActTypeArrayValues"></ListPreference>
+</PreferenceScreen>

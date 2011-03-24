@@ -150,7 +150,25 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.schedule_menu, menu);
+        
         return true;
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) { 
+	    super.onPrepareOptionsMenu(menu);
+	
+	    MenuItem today = menu.findItem(R.id.today_menu_btn);
+	    
+	    if(iksuSchedule.currentDateIndex == 0){
+	    	today.setEnabled(false);
+	    }else{
+	    	if(!today.isEnabled()){
+	    		today.setEnabled(true);
+	    	}
+	    }
+	
+	    return true;
     }
 
     @Override
