@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">IKSU Mobile</string>
-<string name="fetching_schedule">Laddas ner schema. Vänligen vänta.</string>
+<string name="fetching_schedule">Laddar ner schema. Vänligen vänta.</string>
 <string name="fetching_schedule_title">Schema</string>
-<string name="reload">Uppdatera</string><string name="no_connection">Ingen internet anslutning tillgänglig.</string><string name="casError">En fel hände. Är du inloggad med CAS?</string><string name="today">Idag</string><string name="preferences">Inställningar</string><string name="iksuActTypeTitle">Typ av medlemskap</string><string name="iksuActTypeSummary">Visa IKSU Sport eller IKSU Spa aktiviteter.</string>
+<string name="reload">Uppdatera</string><string name="no_connection">Ingen internetanslutning tillgänglig.</string><string name="casError">Ett fel hände. Är du inloggad med CAS?</string><string name="today">Idag</string><string name="preferences">Inställningar</string><string name="iksuActTypeTitle">Typ av medlemskap</string><string name="error">Ett fel hände.</string><string name="iksuActTypeSummary">Visa IKSU Sport- eller IKSU Spa-aktiviteter.</string>
 </resources>

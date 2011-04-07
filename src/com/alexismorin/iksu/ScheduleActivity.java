@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -120,12 +119,14 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     	}
       }
     
-    /*@Override
+    @Override
     public void onResume(){
-    	if(iksuSchedule.activities.size() == 0){
-    		loadData();
+    	super.onResume();
+    	if(iksuSchedule.activities.size() > 0){
+    		loadPrefs();
+    		loadDayToView(iksuSchedule.currentDateIndex);
     	}
-    }*/
+    }
     
     private void loadPrefs(){
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -260,10 +261,10 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 			}else{
 				Log.i("IksuScheduleTask","Task Cancelled due to caught exception.(PostExecute)");
 				cancel(true);
-				Toast.makeText(getApplicationContext(), R.string.casError, Toast.LENGTH_LONG).show();
+				Toast.makeText(getApplicationContext(), R.string.error, Toast.LENGTH_LONG).show();
 				
-				Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("https://netlogon.umu.se/index.cgi?referer=www.google.com"));
-				startActivity(viewIntent);
+				//Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("https://netlogon.umu.se/index.cgi?referer=www.google.com"));
+				//startActivity(viewIntent);
 			}
 		}
 		

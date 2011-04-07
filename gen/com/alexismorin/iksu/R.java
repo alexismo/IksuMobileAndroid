@@ -36,15 +36,15 @@ public final class R {
         public static final int activity_name=0x7f090009;
         public static final int activity_room=0x7f09000a;
         public static final int activity_time=0x7f090008;
-        public static final int btnNext=0x7f090005;
-        public static final int btnPrev=0x7f090004;
+        public static final int btnNext=0x7f090006;
+        public static final int btnPrev=0x7f090005;
         public static final int gallery=0x7f090000;
         public static final int linearLayout1=0x7f090003;
         public static final int my_horizontal_scroll=0x7f090001;
         public static final int my_hsv_layout=0x7f090002;
         public static final int prefs_menu_btn=0x7f09000e;
         public static final int reload_menu_btn=0x7f09000c;
-        public static final int title_header=0x7f090006;
+        public static final int title_header=0x7f090004;
         public static final int today_menu_btn=0x7f09000d;
     }
     public static final class layout {
@@ -58,15 +58,16 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f060000;
-        public static final int casError=0x7f060005;
+        public static final int casError=0x7f060006;
+        public static final int error=0x7f060005;
         public static final int fetching_schedule=0x7f060001;
         public static final int fetching_schedule_title=0x7f060002;
-        public static final int iksuActTypeSummary=0x7f060009;
-        public static final int iksuActTypeTitle=0x7f060008;
+        public static final int iksuActTypeSummary=0x7f06000a;
+        public static final int iksuActTypeTitle=0x7f060009;
         public static final int no_connection=0x7f060004;
-        public static final int preferences=0x7f060007;
+        public static final int preferences=0x7f060008;
         public static final int reload=0x7f060003;
-        public static final int today=0x7f060006;
+        public static final int today=0x7f060007;
     }
     public static final class style {
         public static final int DateView=0x7f070001;
