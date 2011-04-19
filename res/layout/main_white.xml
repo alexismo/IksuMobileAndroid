@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#FFFFFFFF"
+    >
+    <RelativeLayout 
+		android:layout_width="fill_parent"
+		android:layout_height="47dip" 
+		android:id="@+id/linearLayout1"
+		android:background="@drawable/header_background">
+		
+	    <TextView 
+	    	android:id="@+id/title_header" 
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:textSize="30dip"
+			android:height="46dip"
+			android:gravity="center"
+			android:layout_centerHorizontal="true"
+			android:textColor="#FFEEEEEE">
+	    </TextView>
+	    
+	    <Button 
+			android:id="@+id/btnPrev"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:height="46dip"
+			android:width="46dip"
+			android:gravity="center_vertical"
+			android:layout_alignParentLeft="true"
+			android:background="@drawable/button_prev"
+			android:paddingLeft="3dip"></Button>
+	    
+	    <Button 
+			android:id="@+id/btnNext"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:height="46dip"
+			android:width="46dip"
+			android:gravity="center_vertical"
+			android:layout_alignParentRight="true"
+			android:background="@drawable/button_next"
+			android:paddingLeft="3dip"></Button>
+	</RelativeLayout>
+    
+    <ListView
+    	android:id="@+id/activities_view" 
+    	android:layout_height="wrap_content" 
+    	android:layout_width="fill_parent"
+    	android:fadeScrollbars="true"
+    	android:divider="#FF999999"
+    	android:dividerHeight="1px"
+    	></ListView>
+</LinearLayout>
