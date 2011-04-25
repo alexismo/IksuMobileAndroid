@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android">
-  <ListPreference
+	<ListPreference
   	android:title="@string/iksuActTypeTitle"
   	android:summary="@string/iksuActTypeSummary"
   	android:key="iksuActType"
   	android:defaultValue="Sport"
   	android:entries="@array/iksuActTypeArray"
   	android:entryValues="@array/iksuActTypeArrayValues"></ListPreference>
+  	
+	<!--<ListPreference
+	android:enabled="false"
+  	android:title="@string/themeColor"
+  	android:summary="@string/themeColorSummary"
+  	android:key="guiTheme"
+  	android:defaultValue="black"
+  	android:entries="@array/guiTheme"
+  	android:entryValues="@array/guiThemeValues"></ListPreference>
+  	
+  	<Preference
+  	android:key="iksuActivityFilter"
+  	android:defaultValue="0"></Preference> -->
 </PreferenceScreen>

@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
 import android.util.Log;
 
 public class IKSUHelper {
-	private static final String iksuWsUrl = "http://alexismorin.com/iksuMobile/iksuMobile.php";
+	private static final String iksuWsUrl = "http://alexismorin.com/iksuMobile/iksuMobile2.php";
 	private static final int HTTP_STATUS_OK = 200;
 	private static byte[] buff = new byte[1024];
 	
@@ -123,7 +123,7 @@ public class IKSUHelper {
 		return datesArray;
 	}
 	
-	public static ArrayList<IKSUActivity> getScheduleFromPageForDay(Document allDoc, int dayIndex, String filter){
+	public static ArrayList<IKSUActivity> getScheduleFromPageForDay(Document allDoc, int dayIndex, String filter, String activityFilter){
 		ArrayList<IKSUActivity> activities = new ArrayList<IKSUActivity>();
 		NodeList nodes = allDoc.getElementsByTagName("day");
 		//only gets the day we need
@@ -139,15 +139,20 @@ public class IKSUHelper {
 			NodeList actName = activity.getElementsByTagName("name");
 			NodeList actRoom = activity.getElementsByTagName("room");
 			NodeList actInstructor = activity.getElementsByTagName("instructor");
+			NodeList actFilter = activity.getElementsByTagName("filterby");
 			
+			//this filter is for Sport vs Spa
 			//TODO benchmark .startsWith() versus .equals() for performance
-			if(getCharacterDataFromElement((Element) actType.item(0)).trim().startsWith(filter, 0))
-			activities.add(new IKSUActivity(
-					getCharacterDataFromElement(((Element) actName.item(0))).trim(), 
-					getCharacterDataFromElement(((Element) actTime.item(0))).trim(), 
-					dayIndex, 
-					getCharacterDataFromElement(((Element) actInstructor.item(0))).trim(), 
-					getCharacterDataFromElement(((Element) actRoom.item(0))).trim()));
+			if(getCharacterDataFromElement((Element) actType.item(0)).trim().startsWith(filter, 0)){
+				if(getCharacterDataFromElement((Element) actFilter.item(0)).trim().startsWith(activityFilter))
+				activities.add(new IKSUActivity(
+						getCharacterDataFromElement(((Element) actName.item(0))).trim(), 
+						getCharacterDataFromElement(((Element) actTime.item(0))).trim(), 
+						dayIndex, 
+						getCharacterDataFromElement(((Element) actInstructor.item(0))).trim(), 
+						getCharacterDataFromElement(((Element) actRoom.item(0))).trim(),
+						getCharacterDataFromElement(((Element) actFilter.item(0))).trim()));
+			}
 		}
 		
 		return activities;

@@ -9,7 +9,6 @@ import java.io.ObjectOutputStream;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Date;
-
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -17,10 +16,11 @@ import org.xml.sax.SAXException;
 import com.alexismorin.iksu.IKSUHelper.ApiException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,16 +35,18 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ScheduleActivity extends Activity implements OnClickListener{
+public class ScheduleActivity extends Activity implements OnClickListener{	
 	//views from the XML file
 	public LayoutInflater m_inflater;
 	public Button m_p, m_n;
 	public ListView m_class_list;
 	public TextView m_date;
+	public ImageView m_image_view;
 	
 	public ArrayList<String> alSchedule;
 	public Object[] wholeSchedule;
@@ -53,6 +55,7 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 	int dayIndex = 0;
 	
 	private ProgressDialog dialog;
+	private AlertDialog alertDialog;
 	ScheduleAdapter scheduleAdapter = null;
 	
     /** Called when the activity is first created. */
@@ -66,18 +69,22 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         m_date = (TextView) findViewById(R.id.title_header);
         m_p = (Button) findViewById(R.id.btnPrev);
         m_n = (Button) findViewById(R.id.btnNext);
+        m_image_view = (ImageView) findViewById(R.id.header_image);
         
         m_p.setOnClickListener(this);
         m_n.setOnClickListener(this);
+        m_image_view.setOnClickListener(this);
         
         iksuSchedule = (IKSUSchedule) getLastNonConfigurationInstance();
         
-        if( iksuSchedule == null){//if the app is freshly started, need to initialize again.
+        if(iksuSchedule == null){//if the app is freshly started, need to initialize again.
         	m_p.setVisibility(View.INVISIBLE);
         	m_n.setVisibility(View.INVISIBLE);
         	iksuSchedule = new IKSUSchedule();
-        }else{//this happens when the app is rotated
-        	m_date.setText(iksuSchedule.dates.get(iksuSchedule.currentDateIndex));
+        }else{
+        	if(iksuSchedule.dates.size() > 0)//this happens when the app is rotated
+        		m_date.setText(iksuSchedule.dates.get(iksuSchedule.currentDateIndex));
+        	
         	if(iksuSchedule.currentDateIndex == 0){
         		m_p.setVisibility(View.INVISIBLE);
             	m_n.setVisibility(View.VISIBLE);
@@ -86,26 +93,25 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         		m_p.setVisibility(View.VISIBLE);
             	m_n.setVisibility(View.INVISIBLE);
         	}
+        	if(iksuSchedule.activities.size() >= 0){
+        		m_image_view.setVisibility(View.INVISIBLE);
+        	}
         }
         
         scheduleAdapter = new ScheduleAdapter(getApplicationContext());
         m_class_list.setAdapter(scheduleAdapter);
         
-        if(isOnline(getApplicationContext())){
-	        if(iksuSchedule.activities.size() == 0){
-	        	/*if(scheduleIsCached()){
-	        		Log.i("Cache", "Schedule was found to be cached");
-	        		try{
-		        		iksuSchedule = loadScheduleFromCache();
-		        	}catch (Exception e) {
-						Log.i("Cache", "No schedule found in cache");
-		        	}
-		        }else{*/
-					loadData();
-				//}
-	        }
-        }else{
-        	Toast.makeText(getApplicationContext(),R.string.no_connection, Toast.LENGTH_SHORT).show();
+        if(iksuSchedule.activities.size() == 0){
+        	/*if(scheduleIsCached()){
+        		Log.i("Cache", "Schedule was found to be cached");
+        		try{
+	        		iksuSchedule = loadScheduleFromCache();
+	        	}catch (Exception e) {
+					Log.i("Cache", "No schedule found in cache");
+	        	}
+	        }else{*/
+				loadData();
+			//}
         }
     }
     
@@ -117,28 +123,55 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     	if(v == m_p){
     		loadDay(-1);
     	}
+    	if(v == m_image_view){
+    		loadData();
+    	}
       }
     
     @Override
     public void onResume(){
     	super.onResume();
+    	
     	if(iksuSchedule.activities.size() > 0){
-    		loadPrefs();
+    		iksuSchedule.typeFilter = loadPrefString("iksuActType");
     		loadDayToView(iksuSchedule.currentDateIndex);
+    	}else{
+    		//loadData();
     	}
     }
     
-    private void loadPrefs(){
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    	iksuSchedule.typeFilter = prefs.getString("iksuActType", "");
-    	//Log.i("Prefs",iksuSchedule.typeFilter);
+    @Override
+    public void onDestroy(){
+    	super.onDestroy();
+    	
+    	//prevent leaks!
+    	if(dialog != null){
+    		if(dialog.isShowing())
+    			dialog.dismiss();
+    	}
+    	
+    	if(alertDialog != null){
+	    	if(alertDialog.isShowing())
+	    		alertDialog.dismiss();
+    	}
+    }
+    
+    private String loadPrefString(String prefName){
+    	return PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getString(prefName, "");
+    	//iksuSchedule.typeFilter = prefs.getString("iksuActType", "");
+    	//return prefs.getString(prefName, "");
     }
     
     public void loadData(){
-    	loadPrefs();
-    	dialog = ProgressDialog.show(this, "", 
-                this.getString(R.string.fetching_schedule), true);
-    	new IksuScheduleTask().execute();
+    	if(isOnline(getApplicationContext())){
+	    	iksuSchedule.typeFilter = loadPrefString("iksuActType");
+	    	dialog = ProgressDialog.show(this, "", 
+	                this.getString(R.string.fetching_schedule), true);
+	    	new IksuScheduleTask().execute();
+    	}else{
+        	Toast.makeText(getApplicationContext(),R.string.no_connection, Toast.LENGTH_SHORT).show();
+        }
+    	
     }
     
     @Override
@@ -175,9 +208,12 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.reload_menu_btn:
+        /*case R.id.reload_menu_btn:
             loadData();
-            return true;
+            return true;*/
+        case R.id.filter_menu_btn:
+        	makeFilterList();
+        	return true;
         case R.id.today_menu_btn:
         	loadDayToView(0);
         	return true;
@@ -186,6 +222,41 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         	startActivity(settingsActivity);
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    public void makeFilterList(){
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	
+    	builder.setSingleChoiceItems(R.array.iksuActivityFilter, iksuSchedule.activityFilterIndex, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				//save the choice
+				PreferenceManager.getDefaultSharedPreferences(getBaseContext()).edit().putInt("iksuActivityFilter", which).commit();
+				
+				//affect it to the schedule
+				iksuSchedule.activityFilterIndex = which;
+			}
+		}).
+		setCancelable(true).
+		setTitle(R.string.filterTitle).
+		setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.cancel();
+			}
+		}).
+		setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				reloadDay();
+				dialog.dismiss();
+			}
+		});
+    	
+		alertDialog = builder.show();//store a reference to the list as to not leak the view when rotating the device
     }
     
     private class IksuScheduleTask extends AsyncTask<String, Integer, Document>{
@@ -246,8 +317,10 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 				//Log.i("IksuScheduleTask", "Got the dates");
 				dialog.dismiss();
 				iksuSchedule.lastRefreshed = new Date();
-				loadDayToView(dayIndex);
 				
+				m_image_view.setVisibility(View.INVISIBLE);
+				
+				loadDayToView(dayIndex);
 				if(iksuSchedule.getNumActivities() == 0){					
 					loadDayToView(++dayIndex);
 				}
@@ -274,10 +347,9 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 			if(dialog.isShowing())
 				dialog.dismiss();
 			
-			Log.i("IksuScheduleTask","Task Cancelled due to caught exception.");
+			Log.i("IksuScheduleTask","Task Cancelled");
 			
-			Toast.makeText(getApplicationContext(), 
-					R.string.casError, Toast.LENGTH_LONG);
+			//Toast.makeText(getApplicationContext(),R.string.casError, Toast.LENGTH_LONG);
 		}
     	
     }
@@ -297,9 +369,23 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     	}
     }
     
+    private void reloadDay(){//convenience method to apply any new filtering conditions
+    	//or you crash, cause it tries to parse non-existing XML down the line
+    	if(iksuSchedule.activities.size() > 0)
+    		loadDayToView(dayIndex);
+    }
+    
     private void loadDayToView(int newDayIndex){
     	dayIndex = newDayIndex;
-    	iksuSchedule.activities = IKSUHelper.getScheduleFromPageForDay(iksuSchedule.thePage, dayIndex, iksuSchedule.typeFilter);
+    	//load the filter
+        iksuSchedule.activityFilterIndex = PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getInt("iksuActivityFilter", 0);
+    	
+    	iksuSchedule.activities = IKSUHelper.getScheduleFromPageForDay(
+    			iksuSchedule.thePage, 
+    			dayIndex, 
+    			iksuSchedule.typeFilter, 
+    			getResources().getStringArray(R.array.iksuActivityFilterCodes)[iksuSchedule.activityFilterIndex]);
+    	
     	m_date.setText(iksuSchedule.dates.get(dayIndex).trim());
     	iksuSchedule.currentDateIndex = dayIndex;
     	
@@ -373,9 +459,6 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 			}
 		}
 		
-		//if(keep)
-			//Log.i("Cache", "Object successfully saved");
-		
 		return keep;
     }
     
@@ -433,7 +516,9 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         	
         	if(convertView == null){
         		actHolder = new ActivityHolder();
+        		
         		convertView = m_inflater.inflate(R.layout.main_list_item, parent, false);
+        		
         		actHolder.class_name = (TextView) convertView.findViewById(R.id.activity_name);
         		actHolder.class_time = (TextView) convertView.findViewById(R.id.activity_time);
         		actHolder.class_room = (TextView) convertView.findViewById(R.id.activity_room);

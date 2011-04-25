@@ -8,6 +8,7 @@
     			 android:label="@string/app_name">
         <activity android:name="ScheduleActivity"
                   android:label="@string/app_name"
+                  android:configChanges="orientation|keyboard"
                   android:theme="@style/Theme.IKSUMobile">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

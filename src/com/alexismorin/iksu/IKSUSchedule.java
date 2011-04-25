@@ -10,8 +10,9 @@ public class IKSUSchedule{
 	public Document thePage;
 	public String typeFilter;
 	public ArrayList<IKSUActivity> activities = new ArrayList<IKSUActivity>();
-	public ArrayList<String> dates;
+	public ArrayList<String> dates = new ArrayList<String>();
 	public int currentDateIndex;
+	public int activityFilterIndex = 0;
 	
 	public IKSUSchedule(){
 	}

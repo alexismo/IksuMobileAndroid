@@ -1,13 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string-array name="iksuActTypeArray">
-    <item>Alla</item>
-    <item>IKSU Sport</item>
-    <item>IKSU Spa</item>
-</string-array>
-<string-array name="iksuActTypeArrayValues">
-    <item></item>
-    <item>Sport</item>
-    <item>Spa</item>
-</string-array>
+	<string-array name="iksuActTypeArray">
+		<item>Alla</item>
+		<item>IKSU Sport</item>
+		<item>IKSU Spa</item>
+	</string-array>
+	<string-array name="iksuActTypeArrayValues">
+		<item></item>
+		<item>Sport</item>
+		<item>Spa</item>
+	</string-array>
+		<string-array name="guiTheme">
+		<item>Svart</item>
+		<item>Vit</item>
+	</string-array>
+	<string-array name="guiThemeValues">
+		<item>black</item>
+		<item>white</item>
+	</string-array>
+	<string-array name="iksuActivityFilter">
+		<item>Alla</item>
+		<item>Aerobic</item>
+		<item>Afro</item>
+		<item>Aqua</item>
+		<item>Beachträning</item>
+		<item>Bodybalance</item>
+		<item>Bodycombat</item>
+		<item>Bodypump</item>
+		<item>Bodyvive</item>
+		<item>Bollsport</item>
+		<item>Core Control</item>
+		<item>Cykel</item>
+		<item>Dynamic Training</item>
+		<item>Freepower</item>
+		<item>Gympa</item>
+		<item>Indoor Walking</item>
+		<item>Mamma Baby</item>
+		<item>Medlemsaktivitet</item>
+		<item>Pilates</item>
+		<item>Power Pace</item>
+		<item>Punch Out</item>
+		<item>Total training</item>
+		<item>Yoga</item>
+		<item>Zumba</item>
+	</string-array>
 </resources>

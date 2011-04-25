@@ -22,7 +22,7 @@ public class Preferences extends PreferenceActivity {
 				SharedPreferences customSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 				SharedPreferences.Editor editor = customSharedPreferences.edit();
 				
-				editor.putString("iksuActType", ((ListPreference) preference).getValue());
+				editor.putString(preference.getKey(), ((ListPreference) preference).getValue());
 				editor.commit();
 				
 				return false;
