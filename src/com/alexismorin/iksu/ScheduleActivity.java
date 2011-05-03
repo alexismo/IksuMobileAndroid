@@ -4,12 +4,13 @@ import java.io.File;
 //import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 //import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
 import java.util.Date;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -17,10 +18,12 @@ import com.alexismorin.iksu.IKSUHelper.ApiException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,6 +38,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -47,12 +51,9 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 	public ListView m_class_list;
 	public TextView m_date;
 	public ImageView m_image_view;
+	public Dialog loginDialog;
 	
-	public ArrayList<String> alSchedule;
-	public Object[] wholeSchedule;
 	public IKSUSchedule iksuSchedule;
-	
-	int dayIndex = 0;
 	
 	private ProgressDialog dialog;
 	private AlertDialog alertDialog;
@@ -101,6 +102,12 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         scheduleAdapter = new ScheduleAdapter(getApplicationContext());
         m_class_list.setAdapter(scheduleAdapter);
         
+        //determine if user is logged or has credentials stored
+        if(!loadPrefString("iksuUsername").equals("") && !loadPrefString("iksuPassword").equals("")){
+        	iksuSchedule.username = loadPrefString("iksuUsername");
+        	iksuSchedule.password = loadPrefString("iksuPassword");
+        }
+        
         if(iksuSchedule.activities.size() == 0){
         	/*if(scheduleIsCached()){
         		Log.i("Cache", "Schedule was found to be cached");
@@ -113,6 +120,38 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 				loadData();
 			//}
         }
+    }
+    
+    public AlertDialog createLoginDialog(){
+    	LayoutInflater factory = LayoutInflater.from(this);
+    	final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
+    	final EditText usernameEdit = (EditText)textEntryView.findViewById(R.id.username_edit);
+    	final EditText passwordEdit = (EditText)textEntryView.findViewById(R.id.password_edit);
+    	return new AlertDialog.Builder(ScheduleActivity.this)
+            //.setIcon(R.drawable.alert_dialog_icon)
+            .setTitle("Login")
+            .setView(textEntryView)
+            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                    /* That works! Save username and password to preferences*/
+                	SharedPreferences usernamePref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                    SharedPreferences.Editor prefsEditor = usernamePref.edit();
+                    prefsEditor.putString("iksuUsername", usernameEdit.getText().toString());
+                    prefsEditor.putString("iksuPassword", passwordEdit.getText().toString());
+                    // Commit the edits!
+                    prefsEditor.commit();
+                    
+                	//Log.i("AlertBox", usernameEdit.getText() + " " + passwordEdit.getText());
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+
+                    /* User clicked cancel so do some stuff */
+                }
+            })
+            .show();
     }
     
     public void onClick(View v) {
@@ -154,6 +193,11 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 	    	if(alertDialog.isShowing())
 	    		alertDialog.dismiss();
     	}
+    	
+    	if(loginDialog != null){
+    		if(loginDialog.isShowing())
+    			loginDialog.dismiss();
+    	}
     }
     
     private String loadPrefString(String prefName){
@@ -171,7 +215,6 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     	}else{
         	Toast.makeText(getApplicationContext(),R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
-    	
     }
     
     @Override
@@ -220,6 +263,11 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         case R.id.prefs_menu_btn:
         	Intent settingsActivity = new Intent(getBaseContext(), Preferences.class);
         	startActivity(settingsActivity);
+        	return true;
+        case R.id.alert_menu_btn:
+        	alertDialog = createLoginDialog();
+        	alertDialog.show();
+        	return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -269,7 +317,15 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 				//Log.i("IksuScheduleTask", "Fetching Web Page");
 			
 				try {
-					String thePage = IKSUHelper.getXml();
+					String thePage;
+					if(iksuSchedule.hasCredentials()){
+						thePage = IKSUHelper.getLoggedXML(iksuSchedule.username, iksuSchedule.password);
+						iksuSchedule.containsLoggedUserData = true;
+					} else {
+						thePage = IKSUHelper.getXml();
+						iksuSchedule.containsLoggedUserData = false;
+					}
+					//String thePage = IKSUHelper.getXml();
 					//Log.i("IksuScheduleTask", thePage);
 					try {
 						//@REMINDER your return is here. So many potential errors. WTF
@@ -291,6 +347,12 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 					handleError(e);
 					return null;
 				} catch (SocketTimeoutException e) {
+					handleError(e);
+					return null;
+				} catch (UnsupportedEncodingException e){
+					handleError(e);
+					return null;
+				} catch (Exception e){
 					handleError(e);
 					return null;
 				}
@@ -320,9 +382,9 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 				
 				m_image_view.setVisibility(View.INVISIBLE);
 				
-				loadDayToView(dayIndex);
+				loadDayToView(iksuSchedule.currentDateIndex);
 				if(iksuSchedule.getNumActivities() == 0){					
-					loadDayToView(++dayIndex);
+					loadDayToView(++iksuSchedule.currentDateIndex);
 				}
 				
 				saveScheduleToCache();
@@ -334,6 +396,7 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 			}else{
 				Log.i("IksuScheduleTask","Task Cancelled due to caught exception.(PostExecute)");
 				cancel(true);
+				
 				Toast.makeText(getApplicationContext(), R.string.error, Toast.LENGTH_LONG).show();
 				
 				//Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("https://netlogon.umu.se/index.cgi?referer=www.google.com"));
@@ -372,27 +435,27 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     private void reloadDay(){//convenience method to apply any new filtering conditions
     	//or you crash, cause it tries to parse non-existing XML down the line
     	if(iksuSchedule.activities.size() > 0)
-    		loadDayToView(dayIndex);
+    		loadDayToView(iksuSchedule.currentDateIndex);
     }
     
     private void loadDayToView(int newDayIndex){
-    	dayIndex = newDayIndex;
+    	iksuSchedule.currentDateIndex = newDayIndex;
     	//load the filter
         iksuSchedule.activityFilterIndex = PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getInt("iksuActivityFilter", 0);
     	
     	iksuSchedule.activities = IKSUHelper.getScheduleFromPageForDay(
     			iksuSchedule.thePage, 
-    			dayIndex, 
+    			iksuSchedule.currentDateIndex, 
     			iksuSchedule.typeFilter, 
     			getResources().getStringArray(R.array.iksuActivityFilterCodes)[iksuSchedule.activityFilterIndex]);
     	
-    	m_date.setText(iksuSchedule.dates.get(dayIndex).trim());
-    	iksuSchedule.currentDateIndex = dayIndex;
+    	m_date.setText(iksuSchedule.dates.get(iksuSchedule.currentDateIndex).trim());
+    	iksuSchedule.currentDateIndex = iksuSchedule.currentDateIndex;
     	
-    	if(dayIndex == 0 && iksuSchedule.dates.size() > 0){
+    	if(iksuSchedule.currentDateIndex == 0 && iksuSchedule.dates.size() > 0){
 			m_p.setVisibility(View.INVISIBLE);
 			m_n.setVisibility(View.VISIBLE);
-		}else if(dayIndex == iksuSchedule.dates.size() -1){
+		}else if(iksuSchedule.currentDateIndex == iksuSchedule.dates.size() -1){
     		m_p.setVisibility(View.VISIBLE);
 			m_n.setVisibility(View.INVISIBLE);
     	}else{

@@ -3,9 +3,6 @@ package com.alexismorin.iksu;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
@@ -14,15 +11,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.xml.sax.SAXException;
-
-import org.htmlcleaner.*;
-
-import android.util.Log;
 
 public class IksuSiteHelper {
 	
-	public static final String IKSU_SCHEDULE_URL =
+	/*public static final String IKSU_SCHEDULE_URL =
 		"http://bokning.iksu.se/index.php?func=list";
 	public static final String XPATH_IKSU_DATE = "//td[@class='datarow_bold']";
 	public static final String XPATH_IKSU_DAY = "//table[@id='tid_$']";//dolla bill sign is for replacing
@@ -31,6 +23,7 @@ public class IksuSiteHelper {
 	public static final String XPATH_IKSU_ACTIVITY_NAME = "//td[@class='sort_col3_nl']";
 	public static final String XPATH_IKSU_ACTIVITY_ROOM = "//td[@class='sort_col4_nl']";
 	public static final String XPATH_IKSU_ACTIVITY_INSTRUCTOR = "//td[@class='sort_col5_nl']";
+	*/
 	
 	private static final int HTTP_STATUS_OK = 200;
 	
@@ -55,7 +48,7 @@ public class IksuSiteHelper {
 		}
 	}
 	
-	public static Object[] performXPathSelectorOnWebPage(String sXpath, String webpage) 
+	/*public static Object[] performXPathSelectorOnWebPage(String sXpath, String webpage) 
 		throws ParserConfigurationException, SAXException, IOException, XPatherException{
 		
 		//clean the html in the InputStream
@@ -71,9 +64,9 @@ public class IksuSiteHelper {
 		Object[] nodes = pageNode.evaluateXPath(sXpath);
 		
 		return nodes;
-	}
+	}*/
 	
-	public static ArrayList<String> getDatesArray(Object[] allNode) throws XPatherException{
+	/*public static ArrayList<String> getDatesArray(Object[] allNode) throws XPatherException{
 		
 		ArrayList<String> dates = new ArrayList<String>();
 		
@@ -87,9 +80,9 @@ public class IksuSiteHelper {
 		}
 		
 		return dates;
-	}
+	}*/
 	
-	public static ArrayList<String> getActivitiesArray(Object[] allNode, int dayIndex) throws XPatherException{
+	/*public static ArrayList<String> getActivitiesArray(Object[] allNode, int dayIndex) throws XPatherException{
 		
 		ArrayList<String> activities = new ArrayList<String>();
 		
@@ -106,5 +99,5 @@ public class IksuSiteHelper {
 		}
 		
 		return activities;
-	}
+	}*/
 }
