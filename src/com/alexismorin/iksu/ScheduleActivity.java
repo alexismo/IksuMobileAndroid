@@ -4,7 +4,6 @@ import java.io.File;
 //import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 //import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.SocketTimeoutException;
@@ -23,7 +22,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -38,8 +36,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,7 +46,8 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 	public Button m_p, m_n;
 	public ListView m_class_list;
 	public TextView m_date;
-	public ImageView m_image_view;
+	//@TODO remove comment once IKSU logo is approved
+	//public ImageView m_image_view;
 	public Dialog loginDialog;
 	
 	public IKSUSchedule iksuSchedule;
@@ -70,11 +67,13 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         m_date = (TextView) findViewById(R.id.title_header);
         m_p = (Button) findViewById(R.id.btnPrev);
         m_n = (Button) findViewById(R.id.btnNext);
-        m_image_view = (ImageView) findViewById(R.id.header_image);
+    	//@TODO remove comment once IKSU logo is approved
+        //m_image_view = (ImageView) findViewById(R.id.header_image);
         
+        //m_image_view.setOnClickListener(this);
         m_p.setOnClickListener(this);
         m_n.setOnClickListener(this);
-        m_image_view.setOnClickListener(this);
+        
         
         iksuSchedule = (IKSUSchedule) getLastNonConfigurationInstance();
         
@@ -94,9 +93,9 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         		m_p.setVisibility(View.VISIBLE);
             	m_n.setVisibility(View.INVISIBLE);
         	}
-        	if(iksuSchedule.activities.size() >= 0){
+        	/*if(iksuSchedule.activities.size() >= 0){
         		m_image_view.setVisibility(View.INVISIBLE);
-        	}
+        	}*/
         }
         
         scheduleAdapter = new ScheduleAdapter(getApplicationContext());
@@ -122,6 +121,7 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         }
     }
     
+    /*
     public AlertDialog createLoginDialog(){
     	LayoutInflater factory = LayoutInflater.from(this);
     	final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
@@ -134,7 +134,7 @@ public class ScheduleActivity extends Activity implements OnClickListener{
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                    /* That works! Save username and password to preferences*/
+                    // That works! Save username and password to preferences
                 	SharedPreferences usernamePref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                     SharedPreferences.Editor prefsEditor = usernamePref.edit();
                     prefsEditor.putString("iksuUsername", usernameEdit.getText().toString());
@@ -148,11 +148,12 @@ public class ScheduleActivity extends Activity implements OnClickListener{
             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                    /* User clicked cancel so do some stuff */
+                    // User clicked cancel so do some stuff 
                 }
             })
             .show();
     }
+    */
     
     public void onClick(View v) {
         // do something when the button is clicked  	
@@ -162,9 +163,9 @@ public class ScheduleActivity extends Activity implements OnClickListener{
     	if(v == m_p){
     		loadDay(-1);
     	}
-    	if(v == m_image_view){
+    	/*if(v == m_image_view){
     		loadData();
-    	}
+    	}*/
       }
     
     @Override
@@ -264,10 +265,12 @@ public class ScheduleActivity extends Activity implements OnClickListener{
         	Intent settingsActivity = new Intent(getBaseContext(), Preferences.class);
         	startActivity(settingsActivity);
         	return true;
-        case R.id.alert_menu_btn:
+        /*
+         * @TODO: remove comments for version 3
+         case R.id.alert_menu_btn:
         	alertDialog = createLoginDialog();
         	alertDialog.show();
-        	return true;
+        	return true;*/
         }
         return super.onOptionsItemSelected(item);
     }
@@ -318,28 +321,28 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 			
 				try {
 					String thePage;
-					if(iksuSchedule.hasCredentials()){
+					/*if(iksuSchedule.hasCredentials()){
 						thePage = IKSUHelper.getLoggedXML(iksuSchedule.username, iksuSchedule.password);
 						iksuSchedule.containsLoggedUserData = true;
-					} else {
+					} else {*/
 						thePage = IKSUHelper.getXml();
-						iksuSchedule.containsLoggedUserData = false;
-					}
+					/*	iksuSchedule.containsLoggedUserData = false;
+					}*/
 					//String thePage = IKSUHelper.getXml();
 					//Log.i("IksuScheduleTask", thePage);
 					try {
 						//@REMINDER your return is here. So many potential errors. WTF
 						return IKSUHelper.parseTheXml(thePage);
-					} catch (SAXException e) {
+						} catch (SAXException e) {
 						handleError(e);
 						return null;
-					} catch (IOException e) {
+						} catch (IOException e) {
 						handleError(e);
 						return null;
-					} catch (ParserConfigurationException e) {
+						} catch (ParserConfigurationException e) {
 						handleError(e);
 						return null;
-					} catch (Exception e){
+						} catch (Exception e){
 						handleError(e);
 						return null;
 					}
@@ -349,10 +352,10 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 				} catch (SocketTimeoutException e) {
 					handleError(e);
 					return null;
-				} catch (UnsupportedEncodingException e){
+				} /*catch (UnsupportedEncodingException e){
 					handleError(e);
 					return null;
-				} catch (Exception e){
+				}*/ catch (Exception e){
 					handleError(e);
 					return null;
 				}
@@ -380,9 +383,10 @@ public class ScheduleActivity extends Activity implements OnClickListener{
 				dialog.dismiss();
 				iksuSchedule.lastRefreshed = new Date();
 				
-				m_image_view.setVisibility(View.INVISIBLE);
+				//m_image_view.setVisibility(View.INVISIBLE);
 				
 				loadDayToView(iksuSchedule.currentDateIndex);
+				
 				if(iksuSchedule.getNumActivities() == 0){					
 					loadDayToView(++iksuSchedule.currentDateIndex);
 				}

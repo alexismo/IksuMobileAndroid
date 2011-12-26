@@ -144,9 +144,10 @@ public class IKSUHelper {
             
             //check if the content is longer than 0
             if(content.size() > 0){
-            	String thePageContent = new String(content.toByteArray());
-            	if(thePageContent.equals("loginfail"))
-            		throw new Exception("loginfail");
+            	//@TODO remove comments for version 3
+            	//String thePageContent = new String(content.toByteArray());
+            	//if(thePageContent.equals("loginfail"))
+            		//throw new Exception("loginfail");
             	
             	return new String(content.toByteArray());
             } else

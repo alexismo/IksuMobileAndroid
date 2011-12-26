@@ -9,7 +9,7 @@
 	<item android:id="@+id/prefs_menu_btn"
 		android:icon="@drawable/ic_menu_preferences"
         android:title="@string/preferences" />
-    <item android:id="@+id/alert_menu_btn"
+    <!-- <item android:id="@+id/alert_menu_btn"
 		android:icon="@drawable/ic_menu_login"
-        android:title="Login" />
+        android:title="Login" /> -->
 </menu>

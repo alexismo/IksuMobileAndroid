@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">IKSU mobile</string>
+    <string name="app_name">lKSU mobile</string>
 <string name="fetching_schedule">Téléchargement de l\'horraire. Veuillez attendre.</string>
 <string name="fetching_schedule_title">Horraire</string>
 <string name="reload">Actualiser</string><string name="no_connection">Aucune connection disponible.</string>
 <string name="error">Une erreur est survenue.</string><string name="casError">Une erreur est survenue. Êtes-vous connectés à CAS?</string>
 <string name="today">Aujourd\'hui</string>
 <string name="preferences">Préférences</string>
-<string name="preferencesTitle">Préférences IKSU mobile</string>
+<string name="preferencesTitle">Préférences lKSU mobile</string>
 <string name="iksuActTypeTitle">Type d\'abonnement</string>
-<string name="iksuActTypeSummary">Afficher les activités IKSU Sport ou IKSU Spa.</string>
+<string name="iksuActTypeSummary">Afficher les activités Sport ou Spa.</string>
 <string name="themeColor">Thème</string>
 <string name="themeColorSummary">Choisissez entre un thème noir ou blanc.</string><string name="filter">Filtrer</string><string name="filterTitle">Filtrer activités</string><string name="cancel">Annuler</string>
 </resources>

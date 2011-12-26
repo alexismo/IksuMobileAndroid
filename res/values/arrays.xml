@@ -2,8 +2,8 @@
 <resources>
 	<string-array name="iksuActTypeArray">
 		<item>All</item>
-		<item>IKSU Sport</item>
-		<item>IKSU Spa</item>
+		<item>Sport</item>
+		<item>Spa</item>
 	</string-array>
 	<string-array name="iksuActTypeArrayValues">
 		<item></item>
